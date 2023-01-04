@@ -1,0 +1,97 @@
+<!-- chat/templates/chat/index.html -->
+<!DOCTYPE html>
+<html>
+<head>    
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Rooms</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <!-- <script src="/static/js/firebase-messaging-sw.js"></script>
+
+     -->
+
+     <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyCY01qzTxo0UaUKMyt4MLDlfvHfAnBihwA",
+            authDomain: "push-notification-test-4cc97.firebaseapp.com",
+            projectId: "push-notification-test-4cc97",
+            storageBucket: "push-notification-test-4cc97.appspot.com",
+            messagingSenderId: "252266378771",
+            appId: "1:252266378771:web:e238b7b2ddbf55622f31e6"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+      
+        const messaging = firebase.messaging();
+        console.log(messaging.getToken())
+        messaging.getToken({ vapidKey: 'BPBjgjmY8RTf2efTY001ue0Yt5pvwUMPhpCLMMlAhZL8gWMjFGIyob6xUwPt4i1gwBEOBD2aks3iKAoyVCg7oSU' }).then((currentToken) => {
+        if (currentToken) {
+          $.ajax({
+            type: "POST",
+            url: "/chat/",
+            data: {
+              'data': currentToken// from form
+            },
+            success: function () {
+              console.log("Data saved successfully")
+            }
+          });
+          console.log("++++++",currentToken)
+        } else {
+          console.log('No registration token available. Request permission to generate one.');
+       
+        }
+      }).catch((err) => {
+        console.log('An error occurred while retrieving token. ', err);
+      });
+      
+      
+        messaging
+         .requestPermission()
+         .then(function () {
+           console.log("Notification permission granted.");
+           return messaging.getToken()
+         })
+         .catch(function (err) {
+         console.log("Unable to get permission to notify.", err);
+       });
+      
+      
+        messaging.onMessage((payload) => {
+        console.log('Message received. ', payload);
+       
+      });
+      
+      </script>
+
+
+</head>
+<body>
+    What chat room would you like to enter?<br>
+    <input id="room-name-input" type="text" size="100"><br>
+    <input id="username" type="text" size="100" placeholder="Please Enter your username">
+    <input id="room-name-submit" type="button" value="Enter">
+
+    <script>
+        document.querySelector('#room-name-input').focus();
+        document.querySelector('#room-name-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#room-name-submit').click();
+            }
+        };
+
+        document.querySelector('#room-name-submit').onclick = function(e) {
+            var roomName = document.querySelector('#room-name-input').value;
+            var username = document.querySelector('#username').value;
+            window.location.pathname = '/chat/' + roomName + '/'+ username+'/';
+        };
+    </script>
+</body>
+</html>
